@@ -10,6 +10,8 @@ package io.openshift.booster.catalog;
 import java.beans.Transient;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,7 +35,8 @@ public class Booster
    private Path contentPath;
 
    private Map<String, Object> metadata = Collections.emptyMap();
-
+   private Map<String, String> versions = new HashMap<String, String>();
+   
    public String getName()
    {
       return Objects.toString(getMetadata().get("name"), getId());
@@ -50,6 +53,15 @@ public class Booster
    public String getBoosterDescriptionPath()
    {
       return Objects.toString(getMetadata().get("descriptionPath"), ".openshiftio/description.adoc");
+   }
+
+   /**
+    * Returns the human-readable name for the given runtime version id.
+    * If no matching id was found the id itself is returned.
+    */
+   public String runtimeVersionName(String runtimeVersionId)
+   {
+      return versions.getOrDefault(runtimeVersionId, runtimeVersionId);
    }
 
    /**
@@ -220,6 +232,16 @@ public class Booster
    public void setMetadata(Map<String, Object> metadata)
    {
       this.metadata = metadata;
+      
+      // Extract any runtime versions from the meta data and convert them
+      // into a format that's easier to use
+      @SuppressWarnings("unchecked")
+      List<Map<String, Object>> list = (List<Map<String, Object>>) getMetadata().get("versions");
+      if (list != null) {
+          list.forEach((m) -> {
+              versions.put(Objects.toString(m.get("id")), Objects.toString(m.get("name")));
+          });
+      }
    }
 
    @Override
