@@ -24,7 +24,7 @@ import io.openshift.booster.catalog.Booster;
 public class NativeGitBoosterCatalogPathProvider implements BoosterCatalogPathProvider
 {
    private static final Logger logger = Logger.getLogger(NativeGitBoosterCatalogPathProvider.class.getName());
-   private static final String GITHUB_URL = "https://github.com/";
+   private static final String GITHUB_URL = System.getProperty("BOOSTER_GIT_REMOTE", "https://github.com/");
 
    private final String catalogRepositoryURI;
    private final String catalogRef;
