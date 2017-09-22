@@ -235,6 +235,7 @@ public class Booster
     * @param labels the labels to set
     */
    public void setLabels(Set<String> labels) {
+      assert labels !=null;
       this.labels = labels;
    }
 
