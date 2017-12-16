@@ -8,7 +8,11 @@
 package io.openshift.booster.catalog;
 
 import io.openshift.booster.catalog.BoosterCatalogService.Builder;
+import org.arquillian.smart.testing.rules.git.server.GitServer;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ProvideSystemProperty;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,10 +25,20 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
- */
 public class BoosterCatalogServiceTest {
+
+    @ClassRule
+    public static GitServer gitServer = GitServer.bundlesFromDirectory("repos/boosters")
+            .fromBundle("chirino-booster-catalog","repos/custom-catalogs/chirino-booster-catalog.bundle")
+            .fromBundle("gastaldi-booster-catalog","repos/custom-catalogs/gastaldi-booster-catalog.bundle")
+            .usingPort(8765)
+            .create();
+
+    @Rule
+    public final ProvideSystemProperty launcherGitHost = new ProvideSystemProperty("LAUNCHER_GIT_HOST", "http://localhost:8765/");
+
+    @Rule
+    public final ProvideSystemProperty launcherBoosterCatalogRepository = new ProvideSystemProperty("LAUNCHER_BOOSTER_CATALOG_REPOSITORY", "http://localhost:8765/booster-catalog/");
 
     private static BoosterCatalogService defaultService;
 
@@ -50,7 +64,7 @@ public class BoosterCatalogServiceTest {
     @Test
     public void testVertxVersions() throws Exception {
         BoosterCatalogService service = new BoosterCatalogService.Builder()
-                .catalogRepository("https://github.com/gastaldi/booster-catalog.git").catalogRef("vertx_two_versions")
+                .catalogRepository("http://localhost:8765/gastaldi-booster-catalog").catalogRef("vertx_two_versions")
                 .build();
         service.index().get();
         Set<Version> versions = service.getVersions(new Mission("rest-http"), new Runtime("vert.x"));
@@ -60,7 +74,7 @@ public class BoosterCatalogServiceTest {
     @Test
     public void testLabels() throws Exception {
         BoosterCatalogService service = new BoosterCatalogService.Builder()
-                .catalogRepository("https://github.com/chirino/booster-catalog.git").catalogRef("filter_test")
+                .catalogRepository("http://localhost:8765/chirino-booster-catalog").catalogRef("filter_test")
                 .build();
         service.index().get();
         assertThat(service.getBoosters("vert.x")).hasSize(2);
