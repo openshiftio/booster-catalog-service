@@ -52,7 +52,7 @@ public class BoosterCatalogServiceTest {
         service.processMetadata(metadataFile, missions, runtimes);
 
         softly.assertThat(missions).hasSize(5);
-        softly.assertThat(runtimes).hasSize(3);
+        softly.assertThat(runtimes.get("wildfly-swarm").getIcon()).isNotEmpty();
     }
 
     @Test
