@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 /**
@@ -37,7 +37,7 @@ public class Booster {
     private Path descriptorPath;
     private Path contentPath;
 
-    private Future<Path> contentResult = null;
+    private CompletableFuture<Path> contentResult = null;
     
     public Booster(BoosterFetcher boosterFetcher) {
         this.data = new TreeMap<>();
@@ -237,7 +237,7 @@ public class Booster {
     /**
      * Clones a Booster repo and provides the path where to find it as a result
      */
-    public synchronized Future<Path> content() {
+    public synchronized CompletableFuture<Path> content() {
         if (contentResult == null) {
             contentResult = boosterFetcher.fetchBoosterContent(this);
         }
