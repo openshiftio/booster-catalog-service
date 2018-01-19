@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -327,25 +329,19 @@ public class BoosterCatalogService implements BoosterCatalog, BoosterFetcher {
         
         // Update the boosters with the proper info for missions, runtimes and versions
         for (Booster booster : boosters) {
-            String versionId;
-            String runtimeId;
-            String missionId;
-            Path file = booster.getDescriptorPath();
-            if (file.getParent().getParent().getParent().equals(catalogPath)) {
-                versionId = null;
-                runtimeId = file.getParent().toFile().getName();
-                missionId = file.getParent().getParent().toFile().getName();
-            } else {
-                versionId = file.getParent().toFile().getName();
-                runtimeId = file.getParent().getParent().toFile().getName();
-                missionId = file.getParent().getParent().getParent().toFile().getName();
-            }
-
-            booster.setMission(missions.computeIfAbsent(missionId, Mission::new));
-            booster.setRuntime(runtimes.computeIfAbsent(runtimeId, Runtime::new));
-            if (versionId != null) {
-                String versionName = booster.getMetadata("version/name", versionId);
-                booster.setVersion(new Version(versionId, versionName));
+            List<String> path = booster.getMetadata("descriptor/path");
+            if (path != null && !path.isEmpty()) {
+                if (path.size() >= 1) {
+                    booster.setMission(missions.computeIfAbsent(path.get(0), Mission::new));
+                    if (path.size() >= 2) {
+                        booster.setRuntime(runtimes.computeIfAbsent(path.get(1), Runtime::new));
+                        if (path.size() >= 3) {
+                            String versionId = path.get(2);
+                            String versionName = booster.getMetadata("version/name", versionId);
+                            booster.setVersion(new Version(versionId, versionName));
+                        }
+                    }
+                }
             }
         }
         
@@ -429,8 +425,21 @@ public class BoosterCatalogService implements BoosterCatalog, BoosterFetcher {
             booster = common.merged(booster);
             // Booster ID = filename without extension
             booster.setId(id);
-            booster.setDescriptorPath(file);
             booster.setContentPath(moduleDir);
+            
+            // We set some useful values in the "metadata" section:
+            
+            // Information about the booster descriptor, eg if the booster descriptor
+            // file was named "http/vertx/community/booster.yaml" the following will
+            // be added to the metadata section:
+            //    metadata:
+            //      descriptor:
+            //        name: booster.yaml
+            //        path: [http, vertx, community]
+            Map<String, Object> descriptor = new LinkedHashMap<String, Object>();
+            descriptor.put("name", file.getFileName().toString());
+            descriptor.put("path", getDescriptorPathList(file, catalogPath));
+            booster.getMetadata().put("descriptor", descriptor);
         }
         return booster;
     }
@@ -446,6 +455,22 @@ public class BoosterCatalogService implements BoosterCatalog, BoosterFetcher {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error while reading " + file, e);
             return null;
+        }
+    }
+
+    private List<String> getDescriptorPathList(Path boosterPath, Path catalogPath) {
+        Path relativePath = catalogPath.relativize(boosterPath);
+        Path boosterDir = relativePath.getParent();
+        return getPathList(boosterDir);
+    }
+
+    private List<String> getPathList(Path path) {
+        if (path != null) {
+            return StreamSupport.stream(path.spliterator(), false)
+                    .map(Objects::toString)
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
         }
     }
 

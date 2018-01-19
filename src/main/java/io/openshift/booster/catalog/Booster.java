@@ -10,11 +10,11 @@ package io.openshift.booster.catalog;
 import java.beans.Transient;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -34,19 +34,19 @@ public class Booster {
     private Runtime runtime;
     private Version version;
 
-    private Path descriptorPath;
     private Path contentPath;
 
     private CompletableFuture<Path> contentResult = null;
     
     public Booster(BoosterFetcher boosterFetcher) {
-        this.data = new TreeMap<>();
+        this.data = new LinkedHashMap<>();
         this.boosterFetcher = boosterFetcher;
+        this.data.put("metadata", new LinkedHashMap<>());
     }
     
     public Booster(Map<String, Object> data, BoosterFetcher boosterFetcher) {
-        this.data = data;
-        this.boosterFetcher = boosterFetcher;
+        this(boosterFetcher);
+        mergeMaps(this.data, data);
     }
     
     /**
@@ -124,7 +124,7 @@ public class Booster {
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getMetadata() {
-        return Collections.unmodifiableMap((Map<String, Object>)data.getOrDefault("metadata", Collections.emptyMap()));
+        return (Map<String, Object>)data.get("metadata");
     }
 
     /**
@@ -205,21 +205,6 @@ public class Booster {
     }
 
     /**
-     * @return the descriptorPath
-     */
-    @Transient
-    public Path getDescriptorPath() {
-        return descriptorPath;
-    }
-
-    /**
-     * @param descriptorPath the descriptorPath to set
-     */
-    public void setDescriptorPath(Path descriptorPath) {
-        this.descriptorPath = descriptorPath;
-    }
-
-    /**
      * @return the contentPath
      */
     @Transient
@@ -264,7 +249,7 @@ public class Booster {
         for (String key : from.keySet()) {
             Object item = from.get(key);
             if (item instanceof Map) {
-                Map<String, Object> to2 = new TreeMap<>();
+                Map<String, Object> to2 = new LinkedHashMap<>();
                 Map<String, Object> from2 = (Map<String, Object>)item;
                 if (to.containsKey(key) && to.get(key) instanceof Map) {
                     mergeMaps(to2, (Map<String, Object>)to.get(key));
