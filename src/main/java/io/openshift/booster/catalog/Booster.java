@@ -83,13 +83,6 @@ public class Booster {
     public void setDescription(String description) {
         data.put("description", description);
     }
-
-    /**
-     * @return the descriptionPath
-     */
-    public String getDescriptionPath() {
-        return Objects.toString(data.get("descriptionPath"), ".openshiftio/description.adoc");
-    }
     
     /**
      * @return a boolean indicating if the booster should be ignored or not
@@ -110,13 +103,6 @@ public class Booster {
      */
     public String getGitRef() {
         return Objects.toString(data.get("gitRef"), null);
-    }
-
-    /**
-     * @return the buildProfile
-     */
-    public String getBuildProfile() {
-        return Objects.toString(data.get("buildProfile"), null);
     }
 
     /**
@@ -288,9 +274,9 @@ public class Booster {
 
     @Override
     public String toString() {
-        return "Booster [id=" + id + ", githubRepo=" + getGithubRepo() + ", gitRef=" + getGitRef() + ", buildProfile="
-                + getBuildProfile() + ", description=" + getDescription() + ", descriptionPath=" + getDescriptionPath()
-                + ", mission=" + mission + ", runtime=" + runtime + ", version=" + version + ", contentPath="
-                + contentPath + ", metadata=" + getMetadata() + "]";
+        return "Booster [id=" + id + ", githubRepo=" + getGithubRepo() + ", gitRef=" + getGitRef()
+                + ", description=" + getDescription() + ", mission=" + mission + ", runtime="
+                + runtime + ", version=" + version + ", contentPath="+ contentPath + ", metadata="
+                + getMetadata() + "]";
     }
 }

@@ -507,15 +507,20 @@ public class BoosterCatalogService implements BoosterCatalog, BoosterFetcher {
         return (Booster b) -> isSupported(b.getMetadata("supportedDeploymentTypes"), deploymentType);
     }
 
-    private static boolean isSupported(String supportedDeploymentTypes, DeploymentType deploymentType) {
-        if (deploymentType != null && supportedDeploymentTypes != null && !supportedDeploymentTypes.isEmpty()) {
-            String[] types = supportedDeploymentTypes.split(",");
-            for (String t : types) {
-                if (t.equalsIgnoreCase(deploymentType.name())) {
-                    return true;
-                }
+    private static boolean isSupported(Object supportedDeploymentTypes, DeploymentType deploymentType) {
+        if (deploymentType != null && supportedDeploymentTypes != null) {
+            Set<String> types;
+            if (supportedDeploymentTypes instanceof List) {
+                // Make sure we have a list of lowercase strings
+                types = ((List<String>)supportedDeploymentTypes)
+                        .stream()
+                        .map(Objects::toString)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toSet());
+            } else {
+                types = Collections.singleton(supportedDeploymentTypes.toString());
             }
-            return false;
+            return types.contains(deploymentType.name().toLowerCase());
         } else {
             return true;
         }
