@@ -2,7 +2,7 @@ package io.fabric8.launcher.booster.catalog.rhoar.predicates
 
 import io.fabric8.launcher.booster.catalog.Booster
 import org.apache.commons.beanutils.PropertyUtils
-import java.util.*
+import java.util.Objects
 import java.util.function.Predicate
 
 /**
