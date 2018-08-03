@@ -7,16 +7,6 @@
 
 package io.fabric8.launcher.booster.catalog;
 
-import io.fabric8.launcher.booster.catalog.BoosterCatalogService.Builder;
-import io.fabric8.launcher.booster.catalog.spi.NativeGitBoosterCatalogPathProvider;
-import org.arquillian.smart.testing.rules.git.server.GitServer;
-import org.assertj.core.api.JUnitSoftAssertions;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,6 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
+
+import io.fabric8.launcher.booster.catalog.BoosterCatalogService.Builder;
+import io.fabric8.launcher.booster.catalog.spi.NativeGitBoosterCatalogPathProvider;
+import org.arquillian.smart.testing.rules.git.server.GitServer;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import static io.fabric8.launcher.booster.catalog.LauncherConfiguration.PropertyName.LAUNCHER_BOOSTER_CATALOG_REF;
 import static io.fabric8.launcher.booster.catalog.LauncherConfiguration.PropertyName.LAUNCHER_BOOSTER_CATALOG_REPOSITORY;
