@@ -1,12 +1,9 @@
 package io.fabric8.launcher.booster.catalog.rhoar
 
-import java.util.Collections
-import java.util.HashMap
-import java.util.Objects
-import java.util.stream.Collectors
-
 import io.fabric8.launcher.booster.catalog.Booster
 import io.fabric8.launcher.booster.catalog.BoosterFetcher
+import java.util.*
+import java.util.stream.Collectors
 
 class RhoarBooster : Booster {
     var mission: Mission? = null
